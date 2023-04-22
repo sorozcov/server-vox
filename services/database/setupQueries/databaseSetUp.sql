@@ -9,12 +9,12 @@ USE vox;
 
 -- CREATE TABLE ACCOMMODATIONS
 CREATE TABLE IF NOT EXISTS Accommodation (
-    AccommodationId int primary key not null,
     AccommodationLatitude float,
     AccommodationLongitude float,
+    AccommodationId int primary key not null,
     AccommodationTitle varchar(512),
     AccommodationAdvertiser varchar(512),
-    AccommodationDescription varchar(512),
+    AccommodationDescription varchar(10000),
     AccommodationIsReformed bool,
     AccommodationPhone varchar(20),
     AccommodationType varchar(20),
@@ -48,9 +48,9 @@ CREATE TABLE IF NOT EXISTS Accommodation (
     AccommodationHasAirConditioner bool,
     AccommodationHasPool bool,
 	AccommodationHasGarden bool,
-	AccommodationUsefulSquaredMeters bool,
+	AccommodationUsefulSquaredMeters int,
 	AccommodationIsSuitableForPeopleWithReducedMobility bool,
-	AcommodationNumberOfFloors int,
+	AccommodationNumberOfFloors int,
     AccommodationIsPetFriendly bool,
     AccommodationHasBalcony bool
 );
