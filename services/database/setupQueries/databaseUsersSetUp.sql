@@ -1,0 +1,19 @@
+-- CREATE SCHEMA VOX ONLY FIRST TIME
+CREATE SCHEMA IF NOT EXISTS `vox` ;
+
+-- RUN ONLY TO TEST THE DB LOCALLY WITH API
+-- ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'
+
+-- USE DATABASE VOX
+USE vox;
+
+-- CREATE TABLE USERS
+CREATE TABLE IF NOT EXISTS Users (
+    userId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	userName varchar(112),
+    userEmail varchar(56)  UNIQUE KEY,
+    password varchar(100) -- SAVE WITH MD5
+);
+
+-- SELECT FROM USERS
+SELECT * FROM Users

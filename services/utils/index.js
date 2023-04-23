@@ -1,4 +1,4 @@
-const parseBool= bool=> bool.replace(/^\s+|\s+$/g, "").toLowerCase()=='true' ? 1 :  0;
+const parseBool= bool => bool!=undefined && bool?.replace(/^\s+|\s+$/g, "").toLowerCase()=='true' ? 1 :  0;
 const parseNumber = i=> i!='' && !isNaN(i) ?  i :null;
 const parseDate = dat=> !isNaN(Date.parse(dat)) ? dat : null;
 

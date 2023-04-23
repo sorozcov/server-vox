@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const accomodationServices = require('../../services/accommodation');
+const jwt = require("jsonwebtoken");
 
-// TODO PROTECT WITH JWT TOKEN
 /* -------------- Upload CSV File with accommodations endpoint -------------- */
 router.post("/uploadCSVFile", async function (req, res, next) {
   try {
+      // Protected with JWT Token
+      let token = req.headers.authorization && req.headers.authorization.includes("Bearer ") ? req.headers.authorization.split("Bearer ")[1] : null;
+      if (token==null) throw new Error("JWT Token was not sent on request. Please send the token.");
+      if(!await jwt.verify(token, process.env.JWT_SECRET)) throw new Error("JWT Token is not valid. Please sign in to get a new token or verify your token again.");
+
+      
       if(!req.files){ throw new Error("CSV File not provided.")}
       let response = await accomodationServices.uploadAccommodationsFromFile(req.files)
       await res.json(response)
@@ -27,10 +33,14 @@ router.get("/", async function (req, res, next) {
   });
 
 
-// TODO PROTECT WITH JWT TOKEN
 /* ------------------ Get accommodations list with filters ------------------ */
 router.get("/getList", async function (req, res, next) {
   try {
+      // Protected with JWT Token
+      let token = req.headers.authorization && req.headers.authorization.includes("Bearer ") ? req.headers.authorization.split("Bearer ")[1] : null;
+      if (token==null) throw new Error("JWT Token was not sent on request. Please send the token.");
+      if(!await jwt.verify(token, process.env.JWT_SECRET)) throw new Error("JWT Token is not valid. Please sign in to get a new token or verify your token again.");
+
       let {minPrice,maxPrice,numberOfRooms} = req.query;
       let response = await accomodationServices.getAccommodationsFiltered(minPrice, maxPrice, numberOfRooms);
       await res.json(response);

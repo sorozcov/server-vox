@@ -7,6 +7,7 @@ const fileUpload = require("express-fileupload")
 
 /* ------------------------ Connect to MySQL database ----------------------- */
 const conn = require("./services/database");
+const auth = require("./routes/auth")
 const accommodationRoutes = require("./routes/accommodation")
 
 /* ---------------------- Initiate Backend express app ---------------------- */
@@ -22,7 +23,8 @@ app.use(fileUpload({
   })); //fileUpload use to let server handle fileUploads
 
 /* -------------------------- Add all API Endpoints ------------------------- */
-app.use("/accommodation" , accommodationRoutes)
+app.use("/auth",auth);
+app.use("/accommodation" , accommodationRoutes);
 
 
 /* ------------------ Start to listen to petitions on port ------------------ */

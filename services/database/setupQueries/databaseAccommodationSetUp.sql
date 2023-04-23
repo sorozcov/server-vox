@@ -8,7 +8,7 @@ CREATE SCHEMA IF NOT EXISTS `vox` ;
 USE vox;
 
 -- CREATE TABLE ACCOMMODATIONS
-CREATE TABLE IF NOT EXISTS Accommodation (
+CREATE TABLE IF NOT EXISTS Accommodations (
     AccommodationLatitude float,
     AccommodationLongitude float,
     AccommodationId int primary key not null,
