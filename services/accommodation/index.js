@@ -38,6 +38,19 @@ async function getAccommodationsInBounds(latitude,longitude,distanceKm) {
 }
 
 
+async function getAccommodationsReport(minPrice,maxPrice,numberOfRooms,latitude,longitude,distanceKm) {
+    let priceMinFilter =  minPrice ? `AccommodationPrice >= ${minPrice}` : null;
+    let priceMaxFilter = maxPrice ? `AccommodationPrice <= ${maxPrice}` : null;
+    let numberOfRoomsFilter = numberOfRooms ? `AccommodationNumberOfRooms >= ${numberOfRooms}` : null;
+    let filters = [priceMinFilter,priceMaxFilter,numberOfRoomsFilter].filter(f=>f!=null);
+    let latLonFilter = `(ST_Distance(
+        ST_SRID(Point(${longitude}, ${latitude}),4326), 
+        ST_SRID(Point(AccommodationLongitude,AccommodationLatitude),4326)
+        ))/1000 <=${distanceKm} ${filters.length>0 ? 'and ' : ''}`
+    let query = `select * from Accommodations ${filters.length>0 ? 'where '+ latLonFilter + filters.join(" and ") : ''} ;`;
+    let result = await db.query(query);
+    return result;
+}
 
 async function uploadAccommodationsFromFile(files){
     let file = Array.isArray(files.files) ? files.files[0] : files.files;
@@ -146,5 +159,6 @@ module.exports = {
     uploadAccommodationsFromFile,
     getAccommodationsFiltered,
     getAccommodationsInBounds,
-    getAveragePriceAccommodations
+    getAveragePriceAccommodations,
+    getAccommodationsReport
 }

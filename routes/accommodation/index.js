@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const accomodationServices = require('../../services/accommodation');
 const jwt = require("jsonwebtoken");
+const jsonCsvConvert = require('json-2-csv');
+const PDFDocument = require("pdfkit-table");
+const fs = require('fs');
 
 /* -------------- Upload CSV File with accommodations endpoint -------------- */
 router.post("/uploadCSVFile", async function (req, res, next) {
@@ -64,8 +67,8 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
   });
 
 
-/* ---------------------- Get accommodations in bounds ---------------------- */
-  router.get("/getAccommodationInBounds", async function (req, res, next) {
+  /* ---------------------- Get accommodations in bounds ---------------------- */
+  router.get("/getAccommodationsInBounds", async function (req, res, next) {
   try {
       let {latitude,longitude,distanceKm} = req.query;
       if([latitude,longitude,distanceKm].filter(s=> s==undefined || s==null).length>0) throw new Error("All params need to be specified. <latitude, longitude and distanceKm>.")
@@ -76,5 +79,54 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
       next(err);
     }
   });
+
+  /* ------------------- Get Accommodations Report Endpoint ------------------- */
+  router.get("/getAccommodationsReport", async function (req, res, next) {
+    try {
+        let {minPrice,maxPrice,numberOfRooms, latitude,longitude,distanceKm, reportType} = req.query;
+        if(!['csv','pdf'].includes(reportType)) throw new Error("Report Type param must be sent of type csv or pdf.")
+        if([latitude,longitude,distanceKm].filter(s=> s==undefined || s==null).length>0) throw new Error("All params need to be specified. <latitude, longitude and distanceKm>.")
+        let response = await accomodationServices.getAccommodationsReport(minPrice,maxPrice,numberOfRooms, latitude, longitude, distanceKm);
+        //Now we generate csv or pdf file and save it on server to download.
+        //TODO Make csv report and pdf report more beautiful. Add params on report and file location on Cloud server
+        let reportJson = JSON.parse(JSON.stringify(response));
+        if(reportType=='csv'){
+          let reportCsv = await jsonCsvConvert.json2csv(reportJson);
+          let fileLocation = `${process.env.FILES_PATH}${Date.now()}.csv`;
+          fs.writeFileSync(fileLocation,reportCsv)
+          await res.json({fileLocation})
+        }else if(reportType=='pdf'){
+          let doc = new PDFDocument({ margin: 30, size: 'A4' });
+          let fileLocation = `${process.env.FILES_PATH}${Date.now()}.pdf`;
+          await doc.pipe(fs.createWriteStream(fileLocation))
+          const table = {
+            title: "Accommodations Report",
+            headers: [
+              'AccommodationLatitude',
+              'AccommodationLongitude',
+              'AccommodationId',
+              'AccommodationTitle',
+              'AccommodationAdvertiser',
+              'AccommodationDescription',
+              'AccommodationIsReformed',
+              'AccommodationPhone',
+              'AccommodationType',
+              'AccommodationPrice',
+              'AccommodationPricePerMeter',
+            
+            ],
+            rows: reportJson.map(accom=>Object.entries(accom).map(entry=>entry[1] ?? '').slice(0,10))
+          };
+          await doc.table(table, { 
+          });
+          doc.end();
+          await res.json({fileLocation})
+        }
+      } catch (err) {
+        console.error(`Error trying to get accommodations report. `, err.message);
+        next(err);
+      }
+    });
+
 
 module.exports = router;
