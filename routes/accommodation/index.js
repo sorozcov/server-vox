@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const jsonCsvConvert = require('json-2-csv');
 const PDFDocument = require("pdfkit-table");
 const fs = require('fs');
+const {uploadFile} = require('../../services/firebase-storage');
 
 /* -------------- Upload CSV File with accommodations endpoint -------------- */
 router.post("/uploadCSVFile", async function (req, res, next) {
@@ -92,13 +93,18 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
         let reportJson = JSON.parse(JSON.stringify(response));
         if(reportType=='csv'){
           let reportCsv = await jsonCsvConvert.json2csv(reportJson);
-          let fileLocation = `${process.env.FILES_PATH}${Date.now()}.csv`;
-          fs.writeFileSync(fileLocation,reportCsv)
-          await res.json({fileLocation})
+          let fileName = `${Date.now()}.csv`;
+          let tempFileDirectory = `${process.env.FILES_PATH}${fileName}`;
+          fs.writeFileSync(tempFileDirectory,reportCsv)
+          let file = fs.readFileSync(tempFileDirectory);
+          let fileStorage = await uploadFile(file,fileName)
+          fs.unlinkSync(tempFileDirectory)
+          await res.json({file:fileStorage})
         }else if(reportType=='pdf'){
           let doc = new PDFDocument({ margin: 30, size: 'A4' });
-          let fileLocation = `${process.env.FILES_PATH}${Date.now()}.pdf`;
-          await doc.pipe(fs.createWriteStream(fileLocation))
+          let fileName = `${Date.now()}.pdf`;
+          let tempFileDirectory = `${process.env.FILES_PATH}${fileName}`;
+          let pipe = await doc.pipe(fs.createWriteStream(tempFileDirectory))
           const table = {
             title: "Accommodations Report",
             headers: [
@@ -119,8 +125,20 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
           };
           await doc.table(table, { 
           });
-          doc.end();
-          await res.json({fileLocation})
+          await doc.end();
+          
+
+          pipe.on('finish', async function() {
+            // get a blob you can do whatever you like with
+            let file = fs.readFileSync(tempFileDirectory);
+            let fileStorage = await uploadFile(file,fileName)
+            fs.unlinkSync(tempFileDirectory)
+            await res.json({file:fileStorage})
+           });
+          
+          
+          
+        
         }
       } catch (err) {
         console.error(`Error trying to get accommodations report. `, err.message);
