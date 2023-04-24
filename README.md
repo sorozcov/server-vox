@@ -75,6 +75,4 @@ You need to run this repo too.
 
   
 ## TODO
-
- - Still needs to improve the pdf generation report.
  - Still needs to improve the error messages handling.
