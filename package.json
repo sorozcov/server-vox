@@ -1,7 +1,6 @@
 {
   "name": "server-vox",
   "version": "1.0.0",
-  "description": "Backend server for Vox.",
   "main": "index.js",
   "author": "sorozcov <silvio1299@gmail.com>",
   "license": "MIT",
