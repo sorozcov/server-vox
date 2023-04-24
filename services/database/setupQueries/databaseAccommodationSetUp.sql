@@ -56,4 +56,4 @@ CREATE TABLE IF NOT EXISTS Accommodations (
 );
 
 -- SELECT FROM ACCOMODATIONS
-SELECT * FROM Accommodation
+SELECT * FROM Accommodations
