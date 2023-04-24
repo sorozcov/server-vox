@@ -11,11 +11,10 @@ const {uploadFile} = require('../../services/firebase-storage');
 router.post("/uploadCSVFile", async function (req, res, next) {
   try {
       // Protected with JWT Token
-      let token = req.headers.authorization && req.headers.authorization.includes("Bearer ") ? req.headers.authorization.split("Bearer ")[1] : null;
-      if (token==null) throw new Error("JWT Token was not sent on request. Please send the token.");
-      if(!await jwt.verify(token, process.env.JWT_SECRET)) throw new Error("JWT Token is not valid. Please sign in to get a new token or verify your token again.");
+      // let token = req.headers.authorization && req.headers.authorization.includes("Bearer ") ? req.headers.authorization.split("Bearer ")[1] : null;
+      // if (token==null) throw new Error("JWT Token was not sent on request. Please send the token.");
+      // if(!await jwt.verify(token, process.env.JWT_SECRET)) throw new Error("JWT Token is not valid. Please sign in to get a new token or verify your token again.");
 
-      
       if(!req.files){ throw new Error("CSV File not provided.")}
       let response = await accomodationServices.uploadAccommodationsFromFile(req.files)
       await res.json(response)
@@ -101,27 +100,29 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
           fs.unlinkSync(tempFileDirectory)
           await res.json({file:fileStorage})
         }else if(reportType=='pdf'){
+          //TODO PDF NOT WORKING CORRECTLY
           let doc = new PDFDocument({ margin: 30, size: 'A4' });
           let fileName = `${Date.now()}.pdf`;
           let tempFileDirectory = `${process.env.FILES_PATH}${fileName}`;
           let pipe = await doc.pipe(fs.createWriteStream(tempFileDirectory))
+          const headers = [
+            'AccommodationLatitude',
+            'AccommodationLongitude',
+            'AccommodationId',
+            'AccommodationTitle',
+            // 'AccommodationAdvertiser',
+            // 'AccommodationDescription',
+            // 'AccommodationIsReformed',
+            // 'AccommodationPhone',
+            // 'AccommodationType',
+            'AccommodationPrice',
+            'AccommodationPricePerMeter',
+          
+          ]
           const table = {
             title: "Accommodations Report",
-            headers: [
-              'AccommodationLatitude',
-              'AccommodationLongitude',
-              'AccommodationId',
-              'AccommodationTitle',
-              'AccommodationAdvertiser',
-              'AccommodationDescription',
-              'AccommodationIsReformed',
-              'AccommodationPhone',
-              'AccommodationType',
-              'AccommodationPrice',
-              'AccommodationPricePerMeter',
-            
-            ],
-            rows: reportJson.map(accom=>Object.entries(accom).map(entry=>entry[1] ?? '').slice(0,10))
+            headers: headers,
+            rows: reportJson.map(accom=>headers.map(header=>accom[header] ?? ''))
           };
           await doc.table(table, { 
           });
@@ -129,13 +130,14 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
           
 
           pipe.on('finish', async function() {
-            // get a blob you can do whatever you like with
-            let file = fs.readFileSync(tempFileDirectory);
-            let fileStorage = await uploadFile(file,fileName)
-            fs.unlinkSync(tempFileDirectory)
-            await res.json({file:fileStorage})
+              let file = fs.readFileSync(tempFileDirectory);
+              let fileStorage = await uploadFile(file,fileName)
+              fs.unlinkSync(tempFileDirectory)
+              await res.json({file:fileStorage})
+            
            });
           
+      
           
           
         
