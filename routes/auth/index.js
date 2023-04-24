@@ -11,7 +11,8 @@ router.post("/signup", async function (req, res, next) {
       await res.json(response);
     } catch (err) {
       console.error(`Error, signup user. ${email}. `,err.message);
-      next(err);
+      // next(err);
+      await res.json(err);
     }
   });
 
@@ -28,11 +29,12 @@ router.post("/login", async function (req, res, next) {
             userName: user.userName
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
         //Return JWT Token if authenticated
-        await res.json(jwtToken);
+        await res.json({token:jwtToken});
        
       } catch (err) {
         console.error(`Error, could not login with ${email}. `,err.message);
-        next(err);
+        // next(err);
+        await res.json(err);
       }
     });
 

@@ -20,7 +20,8 @@ router.post("/uploadCSVFile", async function (req, res, next) {
       await res.json(response)
     } catch (err) {
       console.error(`Error uploading CSVFile. `, err.message);
-      next(err);
+      // next(err);
+      res.json(err);
     }
   });
 
@@ -31,7 +32,8 @@ router.get("/", async function (req, res, next) {
       await res.json(response);
     } catch (err) {
       console.error(`Error trying to get accommodations. `, err.message);
-      next(err);
+      // next(err);
+      res.json(err);
     }
   });
 
@@ -49,7 +51,8 @@ router.get("/getList", async function (req, res, next) {
       await res.json(response);
     } catch (err) {
       console.error(`Error trying to get accommodations. `, err.message);
-      next(err);
+      // next(err);
+      res.json(err);
     }
   });
 
@@ -62,7 +65,8 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
       await res.json(response);
     } catch (err) {
       console.error(`Error trying to get average price of accommodations. `, err.message);
-      next(err);
+      // next(err);
+      res.json(err);
     }
   });
 
@@ -76,7 +80,8 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
       await res.json(response);
     } catch (err) {
       console.error(`Error trying to get accommodations in bounds. `, err.message);
-      next(err);
+      // next(err);
+      res.json(err);
     }
   });
 
@@ -144,7 +149,8 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
         }
       } catch (err) {
         console.error(`Error trying to get accommodations report. `, err.message);
-        next(err);
+        // next(err);
+        res.json(err);
       }
     });
 

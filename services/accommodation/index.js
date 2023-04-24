@@ -47,7 +47,7 @@ async function getAccommodationsReport(minPrice,maxPrice,numberOfRooms,latitude,
         ST_SRID(Point(${longitude}, ${latitude}),4326), 
         ST_SRID(Point(AccommodationLongitude,AccommodationLatitude),4326)
         ))/1000 <=${distanceKm} ${filters.length>0 ? 'and ' : ''}`
-    let query = `select * from Accommodations ${filters.length>0 ? 'where '+ latLonFilter + filters.join(" and ") : ''} ;`;
+    let query = `select * from Accommodations where ${latLonFilter} ${filters.length>0 ? filters.join(" and ") : ''} ;`;
     let result = await db.query(query);
     return result;
 }
