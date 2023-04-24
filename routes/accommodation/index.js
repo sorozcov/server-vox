@@ -149,8 +149,8 @@ router.get("/getAveragePriceAccommodations", async function (req, res, next) {
         }
       } catch (err) {
         console.error(`Error trying to get accommodations report. `, err.message);
-        // next(err);
-        res.json(err);
+        next(err);
+        // res.json(err);
       }
     });
 
